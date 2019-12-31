@@ -1,0 +1,9 @@
+{"game":"TestGame",
+ "home":"0, 0",
+    "tiles":{
+        "0, 0":{"name":"Home",
+                "desc":"You are standing outside your home. To the east, west, and south, there is nothing but forest. But to the north is dirt road, leading off into the distance."},
+        "0, 1":{"name":"Road",
+                "desc":"A long road stretches out ahead of you, to the east."}
+        }
+    }
