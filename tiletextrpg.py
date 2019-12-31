@@ -1,9 +1,6 @@
 import sys
 import json
 
-inputfile = "/home/brady/code/python/tiletextrpg/map.txt"
-#inputfile = sys.argv[1]
-
 keywords = {"movement":["move","go","walk","run","hike"]}
 
 # Game Attributes
