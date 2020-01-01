@@ -1,11 +1,16 @@
 import sys
 import json
+from time import sleep
 
-keywords = {"movement":["move","go","walk","run","hike"]}
+keywords = {"movement":["move","go","walk","run","hike"],
+            "subtile":["enter","open"],
+            "enter":["into","inside"],
+            "exit":["leave","exit"]}
 
 # Game Attributes
 map = {}
 playerpos = [None,None]
+playersubtile = ""
 
 def openfile(file):
     try:
@@ -25,7 +30,7 @@ def parsemap(inputmap):
     try:
         map = json.loads(inputmap.read())
     except:
-        print("failed to load JSON data from " + inputfile)
+        print("failed to load JSON data from " + str(inputmap))
         sys.exit()
 
 def findplayerhome(map):
@@ -57,14 +62,28 @@ def printgametitle():
         print("no game title found.")
         sys.exit()
 
-def updateplayer():
+def updateplayer(subtile=None):
 
     global playerpos
+    global playersubtile
+    pp = str(playerpos).strip("[]")
 
-    print("\n")
-    print(map["tiles"][str(playerpos).strip("[]")]["name"])
-    print("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~")
-    print(map["tiles"][str(playerpos).strip("[]")]["desc"])
+    if subtile != None and subtile in map["tiles"][pp]["subtile"]:
+        playersubtile = subtile
+        print("\n")
+        print("-> " + subtile)
+        print("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~")
+        print(map["tiles"][pp]["subtile"][subtile]["desc"])
+        if death in map["tiles"][pp]["subtile"][subtile]:
+            death(map["tiles"][pp]["subtile"][subtile]["death"]["cause"],map["tiles"][pp]["subtile"][subtile]["death"]["msg"])
+    else:
+        playersubtile = ""
+        print("\n")
+        print(map["tiles"][pp]["name"])
+        print("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~")
+        print(map["tiles"][pp]["desc"])
+        if "death" in map["tiles"][pp]:
+            death(map["tiles"][pp]["death"]["cause"],map["tiles"][pp]["death"]["msg"])
 
 def checkfortile(x,y,direction):
 
@@ -81,7 +100,14 @@ def parseinput(userinput):
     inputwords = userinput.lower().split(" ")
 
     if inputwords[0] in keywords["movement"]:
-        move(inputwords[1])
+        if inputwords[1] not in keywords["enter"]:
+            move(inputwords[1])
+        else:
+            print("Did you want to enter a sub-area? Use \"enter\" or \"open\".")
+    elif inputwords[0] in keywords["subtile"]:
+        entersubtile(inputwords[1])
+    elif inputwords[0] in keywords["exit"]:
+        entersubtile()
     elif inputwords[0] == "quit":
         quitgame()
     elif inputwords[0] == "":
@@ -104,6 +130,53 @@ def move(direction):
     else:
         idk(direction)
 
+def entersubtile(name=None):
+    
+    global playerpos
+    pp = str(playerpos).strip("[]")
+    if name != None:
+        if "subtile" in map["tiles"][pp]:
+            if name in map["tiles"][pp]["subtile"]:
+                updateplayer(subtile=name)
+    else:
+        updateplayer()
+
 def quitgame():
     print("Goodbye.")
     sys.exit()
+
+def death(cause,message):
+    sleep(2)
+    print("\n")
+    print(message)
+    print("\n")
+    sleep(1)
+    print("***YOU HAVE DIED***".center(26))
+    print(("Cause of death: " + cause).center(30))
+    print("\n")
+    sleep(2)
+    print("Thank you for playing.")
+    sleep(3)
+    quitgame()
+
+# If code is run individually, this is used
+
+#inputfile = "/home/brady/code/python/tiletextrpg/map.json"
+try:
+    inputfile = sys.argv[1]
+except:
+    print("no command line argument given")
+    sys.exit()
+
+parsemap(openfile(inputfile))
+findplayerhome(map)
+
+printgametitle()
+
+updateplayer()
+
+while True:
+    try:
+        parseinput(input("> "))
+    except KeyboardInterrupt:
+        quitgame()
