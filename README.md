@@ -3,9 +3,9 @@ A python program for generic text-based adventure games, loaded from a text file
 
 **How To Use**
 
-The *examplegame.py* program is a good representation of a typical game management script.
+In the console, with python 3 installed:
 
-Make sure to point the openfile() method to the right path of *map.txt*.
+<pre> python3 /path/to/tiletextrpg.py /path/to/map.json </pre>
 
 To make your own game "map", simply create a text file that provides data like this:
 
